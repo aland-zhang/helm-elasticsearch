@@ -1,7 +1,7 @@
 image:
   es:
     repository: quay.io/pires/docker-elasticsearch-kubernetes
-    tag: 6.2.3
+    tag: 6.4.0
     pullPolicy: Always
   init:
     repository: busybox
@@ -18,7 +18,7 @@ common:
   serviceType: LoadBalancer
 
   env:
-    CLUSTER_NAME: "myesdb"
+    CLUSTER_NAME: "elasticsearch"
 
     # Uncomment this if you get the "No up-and-running site-local (private)
     # addresses" error.
@@ -27,7 +27,7 @@ common:
   # If enabled, then the data and master nodes will be StatefulSets with
   # associated persistent volume claims.
   stateful:
-    enabled: false
+    enabled: true
 
     # The PVC storage class that backs the persistent volume claims. On AWS
     # "gp2" would be appropriate.
@@ -45,11 +45,15 @@ client:
   # The amount of RAM allocated to the JVM heap. This should be set to the
   # same value as client.resources.requests.memory, or you may see
   # OutOfMemoryErrors on startup.
-  heapMemory: 256m
+  heapMemory: 2256m
 
   resources:
+    limits:
+      cpu: "2"
+      memory: 3248Mi
     requests:
-      memory: 256Mi
+      memory: 2256Mi
+      cpu: 100m
 
   env:
     NODE_DATA: "false"
@@ -66,17 +70,21 @@ client:
 # master and data roles.
 data:
   # This count will depend on your data and computation needs.
-  replicas: 2
+  replicas: 3
   antiAffinity: "soft"
 
   # The amount of RAM allocated to the JVM heap. This should be set to the
   # same value as data.resources.requests.memory, or you may see
   # OutOfMemoryErrors on startup.
-  heapMemory: 256m
+  heapMemory: 2256m
 
   resources:
+    limits:
+      cpu: "2"
+      memory: 3248Mi
     requests:
-      memory: 256Mi
+      memory: 2256Mi
+      cpu: 100m
 
   env:
     NODE_DATA: "true"
@@ -104,11 +112,15 @@ master:
   # The amount of RAM allocated to the JVM heap. This should be set to the
   # same value as master.resources.requests.memory, or you may see
   # OutOfMemoryErrors on startup.
-  heapMemory: 256m
+  heapMemory: 1256m
 
   resources:
+    limits:
+      cpu: "1"
+      memory: 2000Mi
     requests:
-      memory: 256Mi
+      memory: 1256Mi
+      cpu: 100m
 
   env:
     NODE_DATA: "false"
@@ -127,10 +139,10 @@ master:
   stateful:
     # This is a default value, and will not be sufficient in a production
     # system. You'll probably want to increase it.
-    size: 2Gi  
+    size: 1Gi  
 
 curator:
-  enabled: true
+  enabled: false
   schedule: "0 1 * * *"
 
   # Allows modification of the default age-based filter. If you require more
@@ -146,7 +158,7 @@ service:
   transportPort: 9300
 
 kibana:
-  enabled: true
+  enabled: false
   replicas: 1
   image:
     repository: docker.elastic.co/kibana/kibana-oss
